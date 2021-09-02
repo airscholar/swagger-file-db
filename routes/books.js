@@ -87,9 +87,9 @@ router.get("/", (req, res) => {
  *                          type: object
  */
 router.get("/:id", (req, res) => {
-  const book = req.app.db.get("books").find({ id: req.params.id });
-  console.log(book.id);
-  if (book.id === undefined) {
+  const book = req.app.db.get("books").find({ id: req.params.id }).value();
+
+  if (!book) {
     return res.status(404).json({ message: `Book with id ${req.params.id} not found` });
   }
 
@@ -163,11 +163,6 @@ router.post("/", (req, res) => {
  *                  application/json:
  *                      schema:
  *                          $ref: '#/components/schemas/Book'
- *          404:
- *              description: The specific book is not found
- *              content:
- *                  application/json:
- *                      
  *          500:
  *              description: Server error occurred
  */
@@ -175,13 +170,36 @@ router.put("/:id", (req, res) => {
   try {
     req.app.db.get("books").find({ id: req.params.id }).assign(req.body).write();
 
-    res.send(req.app.db.get("books").find({ id: req.params.id }));
+    res.send(req.app.db.get("books").find({ id: req.params.id }).value());
   } catch (err) {
     console.error(err);
     res.status(500).send(err);
   }
 });
 
+/**
+ * @swagger
+ * /books/{id}:
+ *  delete:
+ *      tags: [Book]
+ *      description: This route will delete book object by the ID
+ *      parameters:
+ *          -   in: path
+ *              name: id
+ *              description: The specific ID of the book
+ *              required: true
+ *              schema:
+ *                  type: string
+ *      content:
+ *          application/json:
+ *              schema:
+ *                  type: object
+ *      responses:
+ *          200:
+ *              description: 
+ *          400:
+ *          500:
+ */
 router.delete("/:id", (req, res) => {
   req.app.db.get("books").remove({ id: req.params.id }).write();
   res.status(200);
