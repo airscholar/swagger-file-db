@@ -181,7 +181,7 @@ router.put("/:id", (req, res) => {
  * @swagger
  * /books/{id}:
  *  delete:
- *      tags: [Book]
+ *      tags: [Books]
  *      description: This route will delete book object by the ID
  *      parameters:
  *          -   in: path
@@ -196,13 +196,27 @@ router.put("/:id", (req, res) => {
  *                  type: object
  *      responses:
  *          200:
- *              description: 
- *          400:
+ *              description: Response when the book has been successfully deleted
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          $ref: '#/components/schemas/Book'
+ *          404:
+ *              description: Response when the 
  *          500:
+ *              description: Response when an internal server error occurred
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          type: object
  */
 router.delete("/:id", (req, res) => {
-  req.app.db.get("books").remove({ id: req.params.id }).write();
-  res.status(200);
+  try {
+    req.app.db.get("books").remove({ id: req.params.id }).write();
+    res.status(200);
+  } catch (err) {
+    res.status(500).json("Internal server error occurred");
+  }
 });
 router.post;
 module.exports = router;
